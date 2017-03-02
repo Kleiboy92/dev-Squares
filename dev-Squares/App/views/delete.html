@@ -1,0 +1,11 @@
+﻿<form>
+    <h2>Delete a list</h2>
+
+    <ul>
+        <li ng-repeat="list in ngDialogData.lists | orderBy: 'name'">
+            <div class="left dialogitem" ng-click="ngDialogData.deleteList(list)">{{list}}</div>
+        </li>
+    </ul>
+
+    <div ng-show="!ngDialogData.lists.length">No lists to delete..</div>
+</form>

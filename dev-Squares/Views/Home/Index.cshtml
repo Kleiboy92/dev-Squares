@@ -1,0 +1,133 @@
+﻿<!DOCTYPE html>
+
+<head>
+   
+    @Scripts.Render("~/bundles/angular")
+
+    @Scripts.Render("~/bundles/app")
+
+</head>
+
+<html>
+<body ng-app="squaresApp">
+        <section>
+            <div class="row">
+                <div ng-controller="pointsController">
+                    <div class="notification">
+                        <div uib-alert ng-repeat="alert in alerts" ng-class="'alert-' + (alert.type || 'warning')" close="closeAlert($index)" dismiss-on-timeout="10000">{{alert.msg}}</div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">Current points {{info.totalItems}}</div>
+                            <div class="panel-body" >
+                                <div ng-if="info.totalItems < size">
+                                    <p>
+                                        <label class="btn btn-default btn-file">
+                                            Upload file<input class="file" type="file" accept="text/plain" name="file" onchange="angular.element(this).scope().uploadFile(this.files)" />
+                                        </label>
+                                    </p>
+                                    <p>
+                                        X <input type="number" name="input" ng-model="xValue" min="{{min}}" max="{{max}}" required> {{xValue}}
+                                        Y <input type="number" name="input" ng-model="yValue" min="{{min}}" max="{{max}}" required>
+                                        <label class="btn btn-default btn-file" ng-click="addPoint(xValue, yValue)">
+                                            Add point
+                                        </label>
+
+                                    </p>
+                                </div>
+                                <div ng-if="info.totalItems > 0">
+                                    <table class="table">
+                                        <tr>
+                                            <th>X</th>
+                                            <th>Y</th>
+                                            <th>Remove</th>
+                                        </tr>
+                                        <tr ng-repeat="p in points">
+                                            <td>{{p.x}}</td>
+                                            <td>{{p.y}}</td>
+                                            <td>
+                                                <button type="button" class="btn btn-default btn-xs" ng-click="removePoint(p.x, p.y)">
+                                                    <span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Del
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                    <ul uib-pagination total-items="info.totalItems" ng-change="pageChanged()" ng-model="info.currentPage" max-size="5" items-per-page="options.maxSize" class="pagination-sm" boundary-links="true" force-ellipses="true"></ul>
+                                    <div>
+                                        <div class="btn-group" uib-dropdown is-open="status.isopen1">
+                                            <button id="single-button" type="button" class="btn btn-primary" uib-dropdown-toggle ng-disabled="disabled">
+                                                Page size : {{options.maxSize}} <span class="caret"></span>
+                                            </button>
+                                            <ul class="dropdown-menu" uib-dropdown-menu role="menu" aria-labelledby="single-button">
+                                                <li ng-repeat="choice in pageSizes">
+                                                    <a ng-click="setSize(choice)">{{choice}}</a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        <button ng-click="download()" type="button" class="btn btn-default">
+                                            <span class="glyphicon glyphicon-floppy-save" aria-hidden="true"></span> Download
+                                        </button>
+                                        <button ng-click="clear()" type="button" class="btn btn-default">
+                                            <span class="glyphicon glyphicon glyphicon-refresh" aria-hidden="true"></span> Clear
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <h2> Point list manipulations</h2>
+                                <button ng-click="saveList()" type="button" class="btn btn-default">
+                                    <span class="glyphicon glyphicon-floppy-save" aria-hidden="true"></span> Save
+                                </button>
+                                <button ng-click="deleteList()" type="button" class="btn btn-default">
+                                    <span class="glyphicon glyphicon glyphicon-trash" aria-hidden="true"></span> Delete
+                                </button>
+                                <button ng-click="loadList()" type="button" class="btn btn-default">
+                                    <span class="glyphicon glyphicon-th-list" aria-hidden="true"></span> Load
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="col-md-5">
+                            <div class="panel panel-default">
+                                <div class="panel-heading">Results: {{resultInfo.totalItems}}</div>
+                                <div class="panel-body">
+                                    <table class="table">
+                                        <tr>
+                                            <th>SW</th>
+                                            <th>NW</th>
+                                            <th>SE</th>
+                                            <th>NE</th>
+                                        </tr>
+                                        <tr ng-repeat="p in results">
+                                            <td>{{p.southWest.x}};{{p.southWest.y}}</td>
+                                            <td>{{p.northWest.x}};{{p.northWest.y}}</td>
+                                            <td>{{p.southEast.x}};{{p.southEast.y}}</td>
+                                            <td>{{p.northEast.x}};{{p.northEast.y}}</td>
+                                        </tr>
+                                    </table>
+                                    <ul uib-pagination total-items="resultInfo.totalItems" ng-change="resultPageChanged()" ng-model="resultInfo.currentPage" max-size="5" items-per-page="resultOptions.maxSize" class="pagination-sm" boundary-links="true" force-ellipses="true"></ul>
+                                    <div>
+                                        <div class="btn-group" uib-dropdown is-open="status.isopen2">
+                                            <button id="single-button" type="button" class="btn btn-primary" uib-dropdown-toggle ng-disabled="disabled">
+                                                Page size : {{resultOptions.maxSize}} <span class="caret"></span>
+                                            </button>
+                                            <ul class="dropdown-menu" uib-dropdown-menu role="menu" aria-labelledby="single-button">
+                                                <li ng-repeat="choice in pageSizes">
+                                                    <a ng-click="setResultSize(choice)">{{choice}}</a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        <button ng-click="solve()" type="button" class="btn btn-default">
+                                            <span class="glyphicon glyphicon-tower" aria-hidden="true"></span> {{state.message}}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+</body>
+</html>
