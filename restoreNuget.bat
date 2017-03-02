@@ -1,0 +1,1 @@
+nuget.exe restore dev-Squares.sln
